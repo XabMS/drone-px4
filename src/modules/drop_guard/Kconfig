@@ -1,0 +1,7 @@
+menuconfig MODULES_DROP_GUARD
+	bool "drop_guard"
+	default n
+	depends on !MODULES_PAYLOAD_DELIVERER
+	---help---
+		Payload release filter by drop zone. Replaces payload_deliverer:
+		handles DO_GRIPPER and only opens the gripper inside the drop zone.

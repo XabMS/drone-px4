@@ -1,0 +1,109 @@
+module_name: drop_guard
+
+parameters:
+    - group: Drop Guard
+      definitions:
+        DG_ENABLE:
+            description:
+                short: Enable drop_guard release filter
+                long: |
+                    If disabled, every payload release command is denied.
+            type: boolean
+            default: 0
+
+        DG_LAT_E7:
+            description:
+                short: Drop zone centre latitude
+                long: |
+                    Latitude of the drop zone centre in degrees * 1e7 (WGS84).
+                    Captured at arming; changes while armed are ignored.
+            type: int32
+            min: -900000000
+            max: 900000000
+            default: 0
+
+        DG_LON_E7:
+            description:
+                short: Drop zone centre longitude
+                long: |
+                    Longitude of the drop zone centre in degrees * 1e7 (WGS84).
+                    Captured at arming; changes while armed are ignored.
+            type: int32
+            min: -1800000000
+            max: 1800000000
+            default: 0
+
+        DG_RADIUS:
+            description:
+                short: Drop zone radius
+                long: |
+                    The horizontal position uncertainty (eph) is subtracted from this radius.
+            type: float
+            unit: m
+            min: 1.0
+            max: 100.0
+            decimal: 1
+            default: 10.0
+
+        DG_ALT_MIN:
+            description:
+                short: Minimum release height above home
+                long: |
+                    The vertical position uncertainty (epv) is added to this limit.
+            type: float
+            unit: m
+            min: 5.0
+            max: 120.0
+            decimal: 1
+            default: 15.0
+
+        DG_ALT_MAX:
+            description:
+                short: Maximum release height above home
+                long: |
+                    The vertical position uncertainty (epv) is subtracted from this limit.
+                    Must exceed DG_ALT_MIN by more than 2 * DG_EPV_MAX.
+            type: float
+            unit: m
+            min: 5.0
+            max: 120.0
+            decimal: 1
+            default: 30.0
+
+        DG_EPH_MAX:
+            description:
+                short: Maximum horizontal position uncertainty for release
+            type: float
+            unit: m
+            min: 0.5
+            max: 10.0
+            decimal: 1
+            default: 2.0
+
+        DG_EPV_MAX:
+            description:
+                short: Maximum vertical position uncertainty for release
+            type: float
+            unit: m
+            min: 0.5
+            max: 10.0
+            decimal: 1
+            default: 3.0
+
+        DG_POS_TOUT:
+            description:
+                short: Maximum age of the global position for release
+            type: int32
+            unit: ms
+            min: 50
+            max: 1000
+            default: 200
+
+        DG_ZONE_HASH:
+            description:
+                short: Drop zone configuration hash
+                long: |
+                    Hash of the drop zone computed by the mission manager.
+                    Reported for pre-flight verification only; not used in the decision.
+            type: int32
+            default: 0

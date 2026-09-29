@@ -112,6 +112,7 @@ set(msg_files
 	GpioRequest.msg
 	GpsDump.msg
 	GpsInjectData.msg
+	DropGuardStatus.msg
 	Gripper.msg
 	HealthReport.msg
 	HeaterStatus.msg
