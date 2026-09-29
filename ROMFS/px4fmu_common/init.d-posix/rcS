@@ -349,7 +349,8 @@ then
 	gyro_calibration start
 fi
 
-payload_deliverer start
+# Proyecto dron de reparto: drop_guard sustituye a payload_deliverer (ADR-007)
+drop_guard start
 
 if param compare -s ICE_EN 1
 then
