@@ -427,6 +427,58 @@ TEST_F(GpsBlendingTest, preferredReturnWithHold)
 	EXPECT_TRUE(gps_blending.isNewOutputDataAvailable());
 }
 
+TEST_F(GpsBlendingTest, preferredArmedOnlySwitchesOnFailure)
+{
+	GpsBlending gps_blending;
+
+	gps_blending.setPrimaryInstance(0);
+	gps_blending.setBlendingUseSpeedAccuracy(false);
+	gps_blending.setBlendingUseHPosAccuracy(false);
+	gps_blending.setBlendingUseVPosAccuracy(false);
+
+	// GIVEN: an armed vehicle using gps0, the preferred receiver
+	sensor_gps_s gps_data0 = getDefaultGpsData();
+	sensor_gps_s gps_data1 = getDefaultGpsData();
+
+	runSeconds(2.f, gps_blending, gps_data0, gps_data1);
+	gps_blending.setArmed(true);
+
+	EXPECT_EQ(gps_blending.getSelectedGps(), 0);
+
+	// WHEN: gps0 stops meeting the EKF2 eph requirement
+	gps_data0.eph = 4.f;
+
+	runSeconds(2.5f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: the selection fails over after the hold time
+	EXPECT_EQ(gps_blending.getSelectedGps(), 1);
+
+	// WHEN: gps0 meets the requirements again
+	gps_data0.eph = 0.7f;
+
+	runSeconds(5.f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: gps1 is kept while armed, as it didn't fail
+	EXPECT_EQ(gps_blending.getSelectedGps(), 1);
+
+	// WHEN: the vehicle disarms
+	gps_blending.setArmed(false);
+
+	runSeconds(2.5f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: the selection returns to the preferred receiver after the hold time
+	EXPECT_EQ(gps_blending.getSelectedGps(), 0);
+
+	// WHEN: armed again and gps0 loses its fix
+	gps_blending.setArmed(true);
+	gps_data0.fix_type = sensor_gps_s::FIX_TYPE_NONE;
+
+	runSeconds(0.1f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: the selection fails over immediately
+	EXPECT_EQ(gps_blending.getSelectedGps(), 1);
+}
+
 TEST_F(GpsBlendingTest, preferredAfterBlending)
 {
 	GpsBlending gps_blending;
@@ -665,6 +717,69 @@ TEST_F(GpsBlendingTest, rankedMinimumRequirements)
 	runSeconds(1.5f, gps_blending, gps_data0, gps_data1);
 
 	// THEN: the more accurate receiver wins after the hold time
+	EXPECT_EQ(gps_blending.getSelectedGps(), 0);
+}
+
+TEST_F(GpsBlendingTest, rankedArmedOnlySwitchesOnFailure)
+{
+	GpsBlending gps_blending;
+
+	gps_blending.setPrimaryInstance(-1);
+	gps_blending.setBlendingUseSpeedAccuracy(false);
+	gps_blending.setBlendingUseHPosAccuracy(false);
+	gps_blending.setBlendingUseVPosAccuracy(false);
+
+	// GIVEN: an armed vehicle with two equivalent receivers, gps0 selected
+	sensor_gps_s gps_data0 = getDefaultGpsData();
+	sensor_gps_s gps_data1 = getDefaultGpsData();
+
+	runSeconds(2.f, gps_blending, gps_data0, gps_data1);
+	gps_blending.setArmed(true);
+
+	EXPECT_EQ(gps_blending.getSelectedGps(), 0);
+
+	// WHEN: gps1 reports a clearly better accuracy
+	gps_data1.eph = 0.3f;
+	gps_data1.epv = 0.5f;
+
+	runSeconds(5.f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: gps0 is kept while armed, as it didn't fail
+	EXPECT_EQ(gps_blending.getSelectedGps(), 0);
+
+	// WHEN: gps0 stops meeting the EKF2 eph requirement
+	gps_data0.eph = 4.f;
+
+	runSeconds(1.f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: the selection is held for the hold time
+	EXPECT_EQ(gps_blending.getSelectedGps(), 0);
+
+	runSeconds(1.5f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: the receiver meeting the requirements is selected
+	EXPECT_EQ(gps_blending.getSelectedGps(), 1);
+
+	// WHEN: gps0 recovers and is clearly more accurate than gps1
+	gps_data0.eph = 0.1f;
+	gps_data0.epv = 0.2f;
+
+	runSeconds(5.f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: gps1 is kept while armed
+	EXPECT_EQ(gps_blending.getSelectedGps(), 1);
+
+	// WHEN: the vehicle disarms
+	gps_blending.setArmed(false);
+
+	runSeconds(1.f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: the selection is held for the hold time
+	EXPECT_EQ(gps_blending.getSelectedGps(), 1);
+
+	runSeconds(1.5f, gps_blending, gps_data0, gps_data1);
+
+	// THEN: the more accurate receiver is selected
 	EXPECT_EQ(gps_blending.getSelectedGps(), 0);
 }
 

@@ -199,6 +199,11 @@ int GpsBlending::selectRankedReceiver(uint64_t hrt_now_us)
 
 int GpsBlending::switchAfterHold(int current, int candidate, uint64_t hrt_now_us)
 {
+	if ((candidate >= 0) && _armed && (receiverQuality(candidate) <= receiverQuality(current))) {
+		// The selected receiver didn't fail: keep it until disarm
+		candidate = -1;
+	}
+
 	if (candidate < 0) {
 		_switch_candidate = -1;
 		return current;

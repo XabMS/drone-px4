@@ -178,6 +178,12 @@ void VehicleGPSPosition::Run()
 		_pps_time_sync.process_pps(pps_capture);
 	}
 
+	vehicle_control_mode_s vehicle_control_mode;
+
+	if (_vehicle_control_mode_sub.update(&vehicle_control_mode)) {
+		_gps_blending.setArmed(vehicle_control_mode.flag_armed);
+	}
+
 	// Check all GPS instance
 	bool any_gps_updated = false;
 	const int32_t gps_prime = _param_sens_gps_prime.get();

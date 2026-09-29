@@ -85,6 +85,8 @@ public:
 	void setBlendingUseVPosAccuracy(bool enabled) { _blend_use_vpos_acc = enabled; }
 	void setBlendingTimeConstant(float tau) { _blending_time_constant = tau; }
 	void setPrimaryInstance(int primary) { _primary_instance = primary; }
+	// While armed the selection only leaves a failing receiver, see switchAfterHold()
+	void setArmed(bool armed) { _armed = armed; }
 	// Receiver quality required by the receiver selection (see ReceiverQuality)
 	void setMinimumRequirements(uint8_t fix_type, float eph, float epv)
 	{
@@ -143,6 +145,10 @@ private:
 	/*
 	 * Switch from the selected receiver to the candidate receiver (-1 if there is none): immediately if the selected
 	 * receiver is unusable (timed out or no 3D fix), otherwise once the same candidate was proposed for GPS_SWITCH_HOLD_US.
+	 *
+	 * Every switch resets the EKF2 position to the new receiver, so while armed only a failure of the selected receiver
+	 * causes a switch: the candidate must have a better quality (see ReceiverQuality). Switches to a more accurate or
+	 * faster receiver (SENS_GPS_PRIME = -1) and returns to the preferred receiver (SENS_GPS_PRIME >= 0) wait for disarm.
 	 */
 	int switchAfterHold(int current, int candidate, uint64_t hrt_now_us);
 
@@ -192,6 +198,7 @@ private:
 
 	int _switch_candidate{-1};           ///< receiver to switch to, waiting for the hold time
 	uint64_t _switch_candidate_since_us{0};
+	bool _armed{false};
 
 	uint8_t _req_fix_type{sensor_gps_s::FIX_TYPE_3D};
 	float _req_eph{3.f};

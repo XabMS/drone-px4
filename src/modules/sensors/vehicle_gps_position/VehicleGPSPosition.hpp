@@ -49,6 +49,7 @@
 #include <uORB/topics/sensor_gnss_relative.h>
 #include <uORB/topics/vehicle_gnss_heading.h>
 #include <uORB/topics/pps_capture.h>
+#include <uORB/topics/vehicle_control_mode.h>
 
 #include "GnssHeadingBaseline.hpp"
 #include "gps_blending.hpp"
@@ -132,6 +133,7 @@ private:
 	};
 
 	uORB::Subscription _pps_capture_sub{ORB_ID(pps_capture)};
+	uORB::Subscription _vehicle_control_mode_sub{ORB_ID(vehicle_control_mode)};
 
 #if defined(CONFIG_SENSORS_VEHICLE_GNSS_HEADING)
 	uORB::Publication<vehicle_gnss_heading_s> _vehicle_gnss_heading_pub {ORB_ID(vehicle_gnss_heading)};

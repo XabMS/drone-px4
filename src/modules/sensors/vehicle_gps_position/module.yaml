@@ -62,6 +62,11 @@ parameters:
                     accuracy, a higher update rate. It switches immediately if the selected
                     receiver times out or loses its 3D fix.
 
+                    Every switch resets the EKF2 position to the new receiver. While armed, the
+                    selection therefore only leaves a receiver that times out, loses its 3D fix
+                    or stops meeting the requirements. Switches to a more accurate or faster
+                    receiver, and returns to the preferred receiver, wait until disarmed.
+
                     To select a DroneCAN GPS, set this to the node ID.
 
                     The primary receiver is reported in the GPS_RAW_INT MAVLink
