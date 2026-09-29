@@ -2637,6 +2637,18 @@ void EKF2::UpdateGpsSample(ekf2_timestamps_s &ekf2_timestamps)
 			return; //TODO: change and set to NAN
 		}
 
+		// Receivers report positions in the frame of their correction source: count the changes of the selected
+		// receiver so that the EKF resets to the new one. The blended output (device_id 0) isn't a receiver.
+		if (vehicle_gps_position.device_id != 0) {
+			if ((_device_id_gps != 0) && (vehicle_gps_position.device_id != _device_id_gps)) {
+				PX4_DEBUG("%d - GNSS receiver changed %" PRIu32 " -> %" PRIu32, _instance, _device_id_gps,
+					  vehicle_gps_position.device_id);
+				_gps_selection_count++;
+			}
+
+			_device_id_gps = vehicle_gps_position.device_id;
+		}
+
 		const float altitude_amsl = static_cast<float>(vehicle_gps_position.altitude_msl_m);
 		const float altitude_ellipsoid = static_cast<float>(vehicle_gps_position.altitude_ellipsoid_m);
 
@@ -2662,6 +2674,7 @@ void EKF2::UpdateGpsSample(ekf2_timestamps_s &ekf2_timestamps)
 			.pos_body = Vector3f(vehicle_gps_position.antenna_offset_x,
 					     vehicle_gps_position.antenna_offset_y,
 					     vehicle_gps_position.antenna_offset_z),
+			.selection_count = _gps_selection_count,
 		};
 
 		_ekf.setGpsData(gnss_sample);

@@ -47,6 +47,13 @@ bool GnssChecks::run(const gnssSample &gnss, uint64_t time_us)
 		_time_last_fail_us = time_us;
 	}
 
+	if (gnss.selection_count != _selection_count) {
+		// The receiver changed: an offset to the previous receiver's position isn't a drift
+		_selection_count = gnss.selection_count;
+		lat_lon_prev = MapProjection{};
+		resetDriftFilters();
+	}
+
 	// Run strict checks while disarmed on the ground
 	if (!_control_status.flags.armed && !_control_status.flags.in_air) {
 		_initial_checks_passed = false;

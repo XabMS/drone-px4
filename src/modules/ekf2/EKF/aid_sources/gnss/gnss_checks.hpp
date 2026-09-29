@@ -164,6 +164,7 @@ private:
 	Vector2f _vel_ne_filt{};
 
 	float _vel_d_filt{0.0f};		///< GNSS filtered Down velocity (m/sec)
+	uint8_t _selection_count{0};		///< selection_count of the last sample, to detect a receiver change
 	uint64_t _time_last_fail_us{0};
 	uint64_t _time_last_pass_us{0};
 	bool _initial_checks_passed{false};

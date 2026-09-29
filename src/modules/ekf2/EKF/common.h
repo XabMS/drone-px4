@@ -203,6 +203,7 @@ struct gnssSample {
 	bool        spoofed{};    ///< true if GNSS data is spoofed
 	bool        jammed{};     ///< true if GNSS data is jammed
 	Vector3f    pos_body{};   ///< position of GPS antenna in body frame (m)
+	uint8_t     selection_count{}; ///< incremented when the receiver providing the samples changes
 };
 
 struct gnssYawSample {
