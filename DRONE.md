@@ -18,7 +18,7 @@ Nivel de control: **CC1** (DOC-09 §5).
 
 ## Tags
 
-`v1.17.0-drone.N` son tags de trabajo sobre la rama `drone`. **No son baselines** del plan de configuración
+`v1.17.0-1.0.0` y sucesivos son tags de trabajo sobre la rama `drone`. El formato lo exige el validador de versión de PX4: `v<PX4>-<mayor>.<menor>.<parche>` (la parte final es la versión custom, aquí `1.0.0`). **No son baselines** del plan de configuración
 (las baselines usan el formato `vFASE.BASELINE.N` y se fijan en `drone.repos` de `drone-sim`).
 
 ## Uso
